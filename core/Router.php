@@ -1,4 +1,5 @@
 <?php
+namespace Core;
 
 class Router
 {
@@ -87,9 +88,12 @@ class Router
 
     public function dispatch($url)
     {
+        $url = $this->removeQueryStringVariables($url);
+
         if ($this->match($url)) {
             $controller = $this->params['controller'];
             $controller = $this->convertToStudlyCaps($controller);
+            $controller = "App\Controllers\\$controller";
 
             if (class_exists($controller)) {
                 $controller_object = new $controller();
@@ -132,5 +136,41 @@ class Router
     protected function convertToCamelCase($string)
     {
         return lcfirst($this->convertToStudlyCaps($string));
+    }
+
+    /**
+     * Remove the query string variables from the URL (if any). As the full query string is used for the route,
+     * any variables at the end will need to be removed before the route is matched to the routing table.
+     * Example:
+     *
+     * URL:                         $_SERVER[QUERY_STRING]      Route
+     * -----------------------------------------------------------------------
+     * localhost                    ''                          ''
+     * localhost/?                  ''                          ''
+     * localhost/?page=1            page=1                      ''
+     * localhost/posts?page=1       posts&page=1                posts
+     * localhost/index              posts/index                 posts/index
+     * localhost/index?page=1       posts/index&page=1          posts/index
+     *
+     *
+     * A URL of the format localhost/?page (one viarable name, no value_ wont`t work however.
+     * (The .htaccess file converts the first ? to a & when it`s passed throught to the $_SERVER variable)
+     *
+     * @param string $url the full url
+     * @return string the url with the query string variables removed
+     */
+    protected function removeQueryStringVariables($url)
+    {
+        if ($url != '') {
+            $parts = explode('&', $url, 2);
+
+            if (strpos($parts[0], '=') === false) {
+                $url = $parts[0];
+            } else {
+                $url = '';
+            }
+        }
+
+        return $url;
     }
 }
