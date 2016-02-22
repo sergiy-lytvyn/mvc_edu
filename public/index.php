@@ -1,14 +1,21 @@
 <?php
 
-//require '../App/Controllers/Index.php';
-require '../App/Controllers/Posts.php';
 
-require_once '../core/Router.php';
+//require '../App/Controllers/Posts.php
 
-$router = new Router();
+spl_autoload_register(function($class) {
+    $root = dirname(__DIR__); //get parent directory
+    $file = $root . '/' . str_replace('\\', '/', $class) . '.php';
+    if (is_readable($file)) {
+        require $root . '/'. str_replace('\\', '/', $class) . '.php';
+    }
+});
+
+
+$router = new Core\Router();
 
 $router->add('', ['controller' => 'Index', 'action' => 'index']);
-$router->add('posts/add', ['controller' => 'Posts', 'action' => 'addNew']);
+$router->add('post/add', ['controller' => 'Posts', 'action' => 'addNew']);
 $router->add('{controller}/{action}');
 $router->add('{controller}/{id:\d+}/{action}');
 
