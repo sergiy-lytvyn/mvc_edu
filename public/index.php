@@ -18,6 +18,7 @@ $router->add('', ['controller' => 'Index', 'action' => 'index']);
 $router->add('post/add', ['controller' => 'Posts', 'action' => 'addNew']);
 $router->add('{controller}/{action}');
 $router->add('{controller}/{id:\d+}/{action}');
+$router->add('admin/{controller}/{action}', ['namespace' => 'Admin']);
 
 $router->dispatch($_SERVER['QUERY_STRING']);
 
